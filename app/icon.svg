@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="cupGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#1e3a8a" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Steam -->
+  <path d="M 35 30 Q 40 15 35 5" fill="none" stroke="#e07a5f" stroke-width="6" stroke-linecap="round" />
+  <path d="M 50 30 Q 55 15 50 5" fill="none" stroke="#e07a5f" stroke-width="6" stroke-linecap="round" />
+  <path d="M 65 30 Q 70 15 65 5" fill="none" stroke="#e07a5f" stroke-width="6" stroke-linecap="round" />
+  
+  <!-- Cup Body -->
+  <path d="M 20 40 L 80 40 C 80 70 70 85 50 85 C 30 85 20 70 20 40 Z" fill="url(#cupGrad)" />
+  
+  <!-- Handle -->
+  <path d="M 80 50 C 95 50 95 70 80 70" fill="none" stroke="url(#cupGrad)" stroke-width="10" stroke-linecap="round" />
+  
+  <!-- Saucer -->
+  <ellipse cx="50" cy="90" rx="40" ry="8" fill="#e5e7eb" />
+</svg>
