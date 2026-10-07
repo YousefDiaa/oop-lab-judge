@@ -67,33 +67,46 @@ export default function TaskCard({ task, isPassed, onPass }: TaskCardProps) {
     setExpandedCase(null);
 
     try {
-      const res = await fetch("/api/run", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mode: "batch",
-          code,
-          testCases: testCases.map((tc) => ({
-            id:        tc.id,
-            input:     tc.input,
-            expected:  tc.expected,
-            checkType: tc.checkType,
-          })),
-        }),
+      const { runJavaGodbolt } = await import("@/lib/godbolt");
+      const stdins = testCases.map(tc => tc.input);
+      const batchResults = await runJavaGodbolt(code, stdins);
+
+      const normalise = (s: string) => s.split("\n").map(l => l.trimEnd()).join("\n").trim();
+      const checkResult = (actual: string, expected: string, checkType: "exact" | "contains") => {
+        const normActual = normalise(actual);
+        const normExpected = normalise(expected);
+        return checkType === "contains" ? normActual.includes(normExpected) : normActual === normExpected;
+      };
+
+      const finalResults = testCases.map((tc, idx) => {
+        const run = batchResults[idx];
+        const passed = checkResult(run.stdout, tc.expected, tc.checkType);
+        return {
+          id: tc.id,
+          passed,
+          stdout: run.stdout,
+          stderr: run.stderr,
+          compile_output: run.compile_output,
+          status: run.status,
+          expected: tc.expected,
+          checkType: tc.checkType,
+        };
       });
 
-      const data = await res.json();
-      setResults(data.results ?? []);
-      setAllPassed(!!data.allPassed);
+      setResults(finalResults);
+      const allPassedResult = finalResults.every(r => r.passed);
+      setAllPassed(allPassedResult);
 
-      if (data.allPassed && !isPassed) {
+      if (allPassedResult && !isPassed) {
         onPass();
       }
-    } catch {
+    } catch (err: unknown) {
+      console.error(err);
+      const msg = err instanceof Error ? err.message : "Execution failed.";
       setResults([
         {
           id: 0, passed: false,
-          stdout: "", stderr: "Network error — please check your connection.",
+          stdout: "", stderr: msg,
           compile_output: "", status: "Error",
           expected: "", checkType: "exact",
         },
