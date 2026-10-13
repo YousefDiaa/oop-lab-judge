@@ -2,8 +2,9 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import TaskCard from "@/components/TaskCard";
-import { CheckCircle, Trophy, ArrowLeft, Loader2 } from "lucide-react";
+import { CheckCircle, Trophy, ArrowLeft, Loader2, User } from "lucide-react";
 
 interface Task {
   number: number;
@@ -91,27 +92,45 @@ export default function LabPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Nav */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-          <button
-            onClick={() => router.push("/")}
-            className="flex items-center gap-1.5 text-gray-500 hover:text-gray-800 text-sm transition"
-          >
-            <ArrowLeft className="w-4 h-4" /> Back
-          </button>
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.push("/")}
+              className="flex items-center gap-1.5 text-gray-500 hover:text-gray-800 text-sm font-medium transition"
+            >
+              <ArrowLeft className="w-4 h-4" /> Home
+            </button>
+
+            {/* Lab Switcher Tabs */}
+            <div className="hidden sm:flex items-center bg-gray-100 p-0.5 rounded-lg text-xs font-semibold">
+              <span className="px-3 py-1 bg-white text-blue-600 rounded-md shadow-sm">
+                Lab 1 (8 Tasks)
+              </span>
+              <Link
+                href={`/lab2?id=${encodeURIComponent(studentId)}&name=${encodeURIComponent(studentName)}&status=${encodeURIComponent(initStatus)}`}
+                className="px-3 py-1 text-gray-600 hover:text-gray-900 rounded-md transition"
+              >
+                Lab 2 (4 Tasks)
+              </Link>
+            </div>
+          </div>
 
           <div className="text-center">
-            <p className="font-semibold text-gray-900 text-sm">{studentName}</p>
+            <p className="font-semibold text-gray-900 text-sm flex items-center justify-center gap-1.5">
+              <User className="w-3.5 h-3.5 text-blue-500" />
+              {studentName}
+            </p>
             <p className="text-xs text-gray-400">ID: {studentId}</p>
           </div>
 
           <div className="flex items-center gap-2 text-sm font-medium">
             {allPassed ? (
-              <span className="flex items-center gap-1 text-green-600">
+              <span className="flex items-center gap-1 text-green-600 font-semibold bg-green-50 px-2.5 py-1 rounded-full">
                 <CheckCircle className="w-4 h-4" /> Completed!
               </span>
             ) : (
-              <span className="text-gray-600">
+              <span className="text-gray-700 bg-gray-100 px-3 py-1 rounded-full text-xs font-semibold">
                 {passedTasks.size} / {tasks.length} passed
               </span>
             )}

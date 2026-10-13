@@ -36,6 +36,9 @@ interface TaskCardProps {
   task: Task;
   isPassed: boolean;
   onPass: () => void;
+  customTestCases?: TestCase[];
+  defaultCode?: string;
+  badgeLabel?: string;
 }
 
 const DEFAULT_CODE = `import java.util.Scanner;
@@ -49,9 +52,16 @@ public class Main {
 }
 `;
 
-export default function TaskCard({ task, isPassed, onPass }: TaskCardProps) {
+export default function TaskCard({
+  task,
+  isPassed,
+  onPass,
+  customTestCases,
+  defaultCode,
+  badgeLabel,
+}: TaskCardProps) {
   const [expanded, setExpanded]       = useState(!isPassed);
-  const [code, setCode]               = useState(DEFAULT_CODE);
+  const [code, setCode]               = useState(defaultCode ?? DEFAULT_CODE);
   const [running, setRunning]         = useState(false);
   const [results, setResults]         = useState<CaseResult[] | null>(null);
   const [allPassed, setAllPassed]     = useState(false);
@@ -59,7 +69,7 @@ export default function TaskCard({ task, isPassed, onPass }: TaskCardProps) {
   const [expandedCase, setExpandedCase] = useState<number | null>(null);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const testCases: TestCase[] = getTestCases(task.number);
+  const testCases: TestCase[] = customTestCases ?? getTestCases(task.number);
 
   async function handleRunAll() {
     setRunning(true);
@@ -75,7 +85,26 @@ export default function TaskCard({ task, isPassed, onPass }: TaskCardProps) {
       const checkResult = (actual: string, expected: string, checkType: "exact" | "contains") => {
         const normActual = normalise(actual);
         const normExpected = normalise(expected);
-        return checkType === "contains" ? normActual.includes(normExpected) : normActual === normExpected;
+
+        if (checkType === "contains") {
+          if (normExpected.includes(" || ")) {
+            const alts = normExpected.split(" || ").map(s => s.trim());
+            return alts.some(alt => normActual.includes(alt));
+          }
+          return normActual.includes(normExpected);
+        }
+
+        // exact check
+        if (normActual === normExpected) return true;
+
+        // Also match if non-empty lines match after trimming
+        const actualLines = normActual.split("\n").map(l => l.trim()).filter(Boolean);
+        const expectedLines = normExpected.split("\n").map(l => l.trim()).filter(Boolean);
+        if (actualLines.length === expectedLines.length && actualLines.every((l, i) => l === expectedLines[i])) {
+          return true;
+        }
+
+        return false;
       };
 
       const finalResults = testCases.map((tc, idx) => {
@@ -156,7 +185,7 @@ export default function TaskCard({ task, isPassed, onPass }: TaskCardProps) {
           )}
           <div>
             <h3 className="font-semibold text-gray-900">
-              Task {task.number}: {task.title}
+              {badgeLabel ? `${badgeLabel}: ${task.title}` : `Task ${task.number}: ${task.title}`}
             </h3>
             {isPassed ? (
               <p className="text-xs text-green-600 font-medium">

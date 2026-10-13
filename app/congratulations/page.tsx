@@ -10,6 +10,7 @@ function CongratulationsContent() {
   
   // Extract first name (or fallback to student)
   const fullName = searchParams.get("name") || "";
+  const labParam = searchParams.get("lab") || "1";
   const firstName = fullName ? fullName.split(" ")[0] : "Student";
 
   return (
@@ -32,7 +33,11 @@ function CongratulationsContent() {
       </p>
 
       <div className="bg-gray-50 rounded-2xl p-6 mb-8 text-gray-600 leading-relaxed text-sm">
-        You have successfully solved all <strong>8 Java OOP Lab tasks</strong>.
+        You have successfully solved all{" "}
+        <strong>
+          {labParam === "2" ? "Java OOP Lab 2 tasks" : "8 Java OOP Lab tasks"}
+        </strong>
+        .
         <br />
         <br />
         Your results have been automatically recorded in the system, and your attendance is marked as <strong>Completed</strong>.
