@@ -1,14 +1,13 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Trophy, Home, Sparkles } from "lucide-react";
+import { Trophy, Home, Sparkles, Loader2 } from "lucide-react";
 
 function CongratulationsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  
-  // Extract first name (or fallback to student)
+
   const fullName = searchParams.get("name") || "";
   const labParam = searchParams.get("lab") || "1";
   const firstName = fullName ? fullName.split(" ")[0] : "Student";
@@ -27,17 +26,13 @@ function CongratulationsContent() {
       <h1 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">
         Congratulations!
       </h1>
-      
+
       <p className="text-xl font-medium text-gray-700 mb-6">
         Well done, <span className="text-green-600 font-bold">{firstName}</span>!
       </p>
 
       <div className="bg-gray-50 rounded-2xl p-6 mb-8 text-gray-600 leading-relaxed text-sm">
-        You have successfully solved all{" "}
-        <strong>
-          {labParam === "2" ? "Java OOP Lab 2 tasks" : "8 Java OOP Lab tasks"}
-        </strong>
-        .
+        You have successfully solved all <strong>6 Encapsulation and String tasks</strong>.
         <br />
         <br />
         Your results have been automatically recorded in the system, and your attendance is marked as <strong>Completed</strong>.
@@ -54,6 +49,19 @@ function CongratulationsContent() {
 }
 
 export default function CongratulationsPage() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-green-600" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <Suspense fallback={<div className="animate-pulse w-96 h-96 bg-gray-200 rounded-3xl" />}>

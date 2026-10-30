@@ -10,9 +10,12 @@ export async function runJavaGodbolt(
   sourceCode: string,
   stdins: string[]
 ): Promise<RunResult[]> {
-  // Strip 'public' from their class to allow our Wrapper to be the main class.
-  // Godbolt names the file example.java, so 'public class Main' would cause a compilation error.
-  const modifiedSource = sourceCode.replace(/(?:public\s+)?class\s+Main/g, "class UserMain");
+  // Godbolt names the file example.java, so 'public class' would cause a compilation error.
+  // Convert 'public class Main' / 'class Main' to 'class UserMain' and strip 'public' from any other class/interface/record/enum.
+  const modifiedSource = sourceCode
+    .replace(/public\s+class\s+Main\b/g, "class UserMain")
+    .replace(/\bclass\s+Main\b/g, "class UserMain")
+    .replace(/public\s+(class|interface|enum|record)\s+/g, "$1 ");
 
   // Create standard input strings encoded to avoid escaping issues in generated Java
   const stdinArrayJava = stdins

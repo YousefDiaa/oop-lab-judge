@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import TaskCard from "@/components/TaskCard";
 import { LAB2_TASKS } from "@/lib/lab2Data";
@@ -10,24 +10,32 @@ import {
   ArrowLeft,
   Loader2,
   Sparkles,
-  Layers,
-  ShieldCheck,
-  Calculator,
+  BookOpen,
+  Thermometer,
+  Square,
+  Lock,
+  KeyRound,
+  RotateCcw,
   User,
 } from "lucide-react";
-import Link from "next/link";
 
 export default function Lab2Page() {
   const params = useSearchParams();
   const router = useRouter();
 
   const studentId = params.get("id") ?? "";
-  const studentName = params.get("name") ?? (studentId ? `Student (${studentId})` : "Guest Student");
+  const studentName =
+    params.get("name") ?? (studentId ? `Student (${studentId})` : "Guest Student");
   const initStatus = params.get("status") ?? "pending";
 
+  const [mounted, setMounted] = useState(false);
   const [passedTasks, setPassedTasks] = useState<Set<number>>(new Set());
   const [allPassed, setAllPassed] = useState(initStatus === "Completed");
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Called by each TaskCard when a task passes
   const handleTaskPass = useCallback(
@@ -44,13 +52,13 @@ export default function Lab2Page() {
             action: "recordSubmission",
             studentId,
             studentName,
-            taskNumber: `Lab2-Task${taskNumber}`,
+            taskNumber: `Task${taskNumber}`,
             status: "pass",
           }),
         }).catch(console.error);
       }
 
-      // Check if all 4 tasks are now passed
+      // Check if all 6 tasks are now passed
       if (newPassed.size === LAB2_TASKS.length) {
         if (studentId) {
           setSubmitting(true);
@@ -66,7 +74,7 @@ export default function Lab2Page() {
             setSubmitting(false);
             setAllPassed(true);
             router.replace(
-              `/congratulations?name=${encodeURIComponent(studentName)}&lab=2`
+              `/congratulations?name=${encodeURIComponent(studentName)}`
             );
           }
         } else {
@@ -77,9 +85,13 @@ export default function Lab2Page() {
     [passedTasks, studentId, studentName, router]
   );
 
-  const lab1Url = studentId
-    ? `/lab?id=${encodeURIComponent(studentId)}&name=${encodeURIComponent(studentName)}&status=${encodeURIComponent(initStatus)}`
-    : "/lab";
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
@@ -94,17 +106,8 @@ export default function Lab2Page() {
               <ArrowLeft className="w-4 h-4" /> Home
             </button>
 
-            {/* Lab Switcher Tabs */}
-            <div className="hidden sm:flex items-center bg-gray-100 p-0.5 rounded-lg text-xs font-semibold">
-              <Link
-                href={lab1Url}
-                className="px-3 py-1 text-gray-600 hover:text-gray-900 rounded-md transition"
-              >
-                Lab 1 (8 Tasks)
-              </Link>
-              <span className="px-3 py-1 bg-white text-blue-600 rounded-md shadow-sm">
-                Lab 2 (4 Tasks)
-              </span>
+            <div className="hidden sm:flex items-center px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-semibold border border-blue-100">
+              Encapsulation and String
             </div>
           </div>
 
@@ -134,9 +137,9 @@ export default function Lab2Page() {
 
       {/* ── Main Content ───────────────────────────────────── */}
       <main className="max-w-5xl mx-auto px-4 pt-8 space-y-6">
-        {/* Lab 2 Hero Card */}
+        {/* Hero Card */}
         <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 rounded-3xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden">
-          <div className="absolute right-0 top-0 translate-x-10 -translate-y-10 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute right-0 top-0 translate-x-10 -translate-y-10 w-72 h-72 bg-white/10 rounded-full blur-2xl pointer-events-none" />
 
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-xs font-semibold tracking-wide uppercase mb-3">
@@ -144,43 +147,72 @@ export default function Lab2Page() {
               OOP Java Assessment
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              Lab 2 — Exercises
+              Encapsulation and String
             </h1>
             <p className="text-blue-100 text-sm sm:text-base mt-2 max-w-2xl leading-relaxed">
-              Complete the 3 assigned exercises: nested loop patterns, 4-digit ID
-              encryption, and method approximation for the mathematical constant{" "}
-              <span className="font-serif italic font-bold">e</span>.
+              Complete the 6 assigned exercises covering class encapsulation, computed getters,
+              static members, character rule checking, Caesar cipher arithmetic, and word reversal.
             </p>
 
             {/* Exercise summary badges */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/10">
-                <div className="flex items-center gap-2 font-semibold text-xs sm:text-sm">
-                  <Layers className="w-4 h-4 text-yellow-300" />
-                  <span>Exercise 1: Patterns</span>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 mt-6">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-2.5 border border-white/10 text-left">
+                <div className="flex items-center gap-1.5 font-semibold text-xs">
+                  <BookOpen className="w-3.5 h-3.5 text-yellow-300 shrink-0" />
+                  <span>Task 1: Book</span>
                 </div>
-                <p className="text-xs text-blue-200 mt-1">
-                  Part A (Numbers) & Part B (Alphabet Pyramid)
+                <p className="text-[11px] text-blue-200 mt-1 line-clamp-1">
+                  Encapsulation
                 </p>
               </div>
 
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/10">
-                <div className="flex items-center gap-2 font-semibold text-xs sm:text-sm">
-                  <ShieldCheck className="w-4 h-4 text-green-300" />
-                  <span>Exercise 2: Encryption</span>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-2.5 border border-white/10 text-left">
+                <div className="flex items-center gap-1.5 font-semibold text-xs">
+                  <Thermometer className="w-3.5 h-3.5 text-red-300 shrink-0" />
+                  <span>Task 2: Temp</span>
                 </div>
-                <p className="text-xs text-blue-200 mt-1">
-                  (digit + 7) % 10 & 1st↔3rd, 2nd↔4th swap
+                <p className="text-[11px] text-blue-200 mt-1 line-clamp-1">
+                  Computed Getters
                 </p>
               </div>
 
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/10">
-                <div className="flex items-center gap-2 font-semibold text-xs sm:text-sm">
-                  <Calculator className="w-4 h-4 text-pink-300" />
-                  <span>Exercise 3: calc_e(int)</span>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-2.5 border border-white/10 text-left">
+                <div className="flex items-center gap-1.5 font-semibold text-xs">
+                  <Square className="w-3.5 h-3.5 text-blue-300 shrink-0" />
+                  <span>Task 3: Rect</span>
                 </div>
-                <p className="text-xs text-blue-200 mt-1">
-                  e = 1 + 1/1! + 1/2! + 1/3! + ...
+                <p className="text-[11px] text-blue-200 mt-1 line-clamp-1">
+                  Static & Validation
+                </p>
+              </div>
+
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-2.5 border border-white/10 text-left">
+                <div className="flex items-center gap-1.5 font-semibold text-xs">
+                  <Lock className="w-3.5 h-3.5 text-green-300 shrink-0" />
+                  <span>Task 4: Password</span>
+                </div>
+                <p className="text-[11px] text-blue-200 mt-1 line-clamp-1">
+                  String & Character
+                </p>
+              </div>
+
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-2.5 border border-white/10 text-left">
+                <div className="flex items-center gap-1.5 font-semibold text-xs">
+                  <KeyRound className="w-3.5 h-3.5 text-yellow-200 shrink-0" />
+                  <span>Task 5: Caesar</span>
+                </div>
+                <p className="text-[11px] text-blue-200 mt-1 line-clamp-1">
+                  Char Arithmetic
+                </p>
+              </div>
+
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-2.5 border border-white/10 text-left">
+                <div className="flex items-center gap-1.5 font-semibold text-xs">
+                  <RotateCcw className="w-3.5 h-3.5 text-pink-300 shrink-0" />
+                  <span>Task 6: Reverse</span>
+                </div>
+                <p className="text-[11px] text-blue-200 mt-1 line-clamp-1">
+                  Split & StringBuilder
                 </p>
               </div>
             </div>
@@ -196,8 +228,8 @@ export default function Lab2Page() {
                 🎉 Congratulations, {studentName.split(" ")[0]}!
               </h2>
               <p className="text-green-700 text-sm mt-1">
-                You have successfully solved all Lab 2 tasks! Your solutions passed
-                all auto-grading test cases.
+                You have successfully solved all 6 Encapsulation and String tasks! Your solutions
+                passed all auto-grading test cases.
               </p>
             </div>
           </div>
@@ -207,7 +239,7 @@ export default function Lab2Page() {
         {!allPassed && (
           <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
             <div className="flex justify-between text-xs text-gray-600 mb-1.5 font-medium">
-              <span>Overall Lab 2 Progress</span>
+              <span>Overall Progress</span>
               <span className="text-blue-600 font-semibold">
                 {passedTasks.size} of {LAB2_TASKS.length} tasks completed
               </span>
@@ -246,7 +278,7 @@ export default function Lab2Page() {
               onPass={() => handleTaskPass(task.number)}
               customTestCases={task.testCases}
               defaultCode={task.defaultCode}
-              badgeLabel={task.exerciseLabel}
+              badgeLabel={`${task.exerciseLabel} (${task.category})`}
             />
           ))}
         </div>

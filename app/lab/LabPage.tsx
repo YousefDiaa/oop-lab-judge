@@ -22,12 +22,17 @@ export default function LabPage() {
   const studentName = params.get("name") ?? "";
   const initStatus  = params.get("status") ?? "pending";
 
+  const [mounted, setMounted]           = useState(false);
   const [tasks, setTasks]               = useState<Task[]>([]);
   const [passedTasks, setPassedTasks]   = useState<Set<number>>(new Set());
   const [allPassed, setAllPassed]       = useState(initStatus === "Completed");
   const [loadingTasks, setLoadingTasks] = useState(true);
   const [submitting, setSubmitting]     = useState(false);
   const [error, setError]               = useState("");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Fetch tasks from our API route
   useEffect(() => {
@@ -89,6 +94,14 @@ export default function LabPage() {
     return null;
   }
 
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Nav */}
@@ -111,7 +124,7 @@ export default function LabPage() {
                 href={`/lab2?id=${encodeURIComponent(studentId)}&name=${encodeURIComponent(studentName)}&status=${encodeURIComponent(initStatus)}`}
                 className="px-3 py-1 text-gray-600 hover:text-gray-900 rounded-md transition"
               >
-                Lab 2 (4 Tasks)
+                Lab 2 (6 Tasks)
               </Link>
             </div>
           </div>
